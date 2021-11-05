@@ -58,16 +58,17 @@ export default function App() {
       <View>
         <Button
           title="Send"
-          onPress={()=>{
+          onPress={ ()=>{
+            let newMsg = {
+              author: authorText,
+              text: inputText,
+              timestamp: new Date()
+            };
+            let newDocRef = await addDoc(collection(db, 'messageBoard'), newMsg);
+            newMsg.key = newDocRef.id;
             setMessages(oldMessages=>{
               let newMessages = Array.from(oldMessages);
-              let ts = Date.now();
-              newMessages.push({
-                author: authorText,
-                text: inputText,
-                timestamp: ts,
-                key: '' + ts
-              });
+              newMessages.push(newMsg);
               return newMessages;
             });
             setInputText('');
