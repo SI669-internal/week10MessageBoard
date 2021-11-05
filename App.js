@@ -6,6 +6,7 @@ import {
   where, doc, addDoc, getDoc, onSnapshot
 } from "firebase/firestore";
 import { firebaseConfig } from './Secrets';
+import { render } from 'react-dom';
 
 let app;
 if (getApps().length == 0){
@@ -17,9 +18,11 @@ const db = initializeFirestore(app, {
 
 export default function App() {
 
+  const boards = ['#general', '#announcements', '#random'];
   const [inputText, setInputText] = useState('');
   const [authorText, setAuthorText] = useState('');
   const [messages, setMessages] = useState([]);
+  const [board, setBoard] = useState(boards[0]);
 
   useEffect(()=>{ 
     const q = query(collection(db, 'messageBoard'), 
@@ -33,7 +36,6 @@ export default function App() {
         msg.timestamp = msg.timestamp.toDate();
         newMessages.push(msg);
       });
-      console.log(newMessages);
       setMessages(newMessages);
     });
   }, []);
@@ -68,6 +70,24 @@ export default function App() {
             addDoc(collection(db, "messageBoard"), newMsg);
             setInputText('');
           }}
+        />
+      </View>
+      <View style={styles.boardSelectionContainer}>
+        <FlatList
+          contentContainerStyle={styles.boardSelectionContentContainer}
+          data={boards}
+          renderItem={({item})=>{
+            return (
+              <Button
+                title={item}
+                onPress={()=>{
+                  setBoard(item)
+                }}
+                color={item===board?'red': 'gray'}
+              />
+            );
+          }}
+          keyExtractor={(item, index)=>item}
         />
       </View>
       <View style={styles.chatContainer}>
@@ -130,6 +150,19 @@ const styles = StyleSheet.create({
     borderWidth: 1, 
     height: 40
   },
+  boardSelectionContainer: {
+    flex: 0.1, 
+    //flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-evenly',
+    alignItems: 'center'
+  },  
+  boardSelectionContentContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-evenly',
+    alignItems: 'center'
+  },  
   chatContainer: {
     flex: 0.6,
     width: '100%',
