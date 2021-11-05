@@ -25,17 +25,19 @@ export default function App() {
   useEffect(()=>{
 
     async function loadMessages() {
-      let messagesQuerySnapshot = await getDocs(collection(db, 'messageBoard'));
+      let messagesQuerySnapshot = 
+        await getDocs(collection(db, 'messageBoard'));
       let newMessages = [];
       messagesQuerySnapshot.forEach((docSnap) => {
         let msg = docSnap.data();
         msg.key = docSnap.id;
         newMessages.push(msg);
       });
+      setMessages(newMessages);
     }
 
     loadMessages();
-  });
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -58,7 +60,7 @@ export default function App() {
       <View>
         <Button
           title="Send"
-          onPress={ ()=>{
+          onPress={async ()=>{
             let newMsg = {
               author: authorText,
               text: inputText,
