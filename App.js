@@ -22,9 +22,7 @@ export default function App() {
   const [messages, setMessages] = useState([]);
 
   useEffect(()=>{ 
-    console.log('using effect');
     onSnapshot(collection(db, 'messageBoard'), (qSnap) => {
-      console.log('onsnap', qSnap.empty);
       let newMessages = [];
       qSnap.docs.forEach((docSnap)=>{
         console.log(docSnap.data());
