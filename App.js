@@ -25,7 +25,6 @@ export default function App() {
     onSnapshot(collection(db, 'messageBoard'), (qSnap) => {
       let newMessages = [];
       qSnap.docs.forEach((docSnap)=>{
-        console.log(docSnap.data());
         let msg = docSnap.data();
         msg.key = docSnap.id;
         newMessages.push(msg);
@@ -62,8 +61,6 @@ export default function App() {
                 timestamp: new Date(),
             };
             addDoc(collection(db, "messageBoard"), newMsg);
-
-
             // setMessages(oldMessages=>{
             //   let newMessages = Array.from(oldMessages);
             //   let ts = Date.now();
