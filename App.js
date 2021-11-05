@@ -15,16 +15,26 @@ const db = initializeFirestore(app, {
   useFetchStreams: false
 });
 
-
 export default function App() {
 
   const [inputText, setInputText] = useState('');
   const [authorText, setAuthorText] = useState('');
   const [messages, setMessages] = useState([]);
 
-  useEffect(()=>{
-
-  });
+  useEffect(()=>{ 
+    console.log('using effect');
+    onSnapshot(collection(db, 'messageBoard'), (qSnap) => {
+      console.log('onsnap', qSnap.empty);
+      let newMessages = [];
+      qSnap.docs.forEach((docSnap)=>{
+        console.log(docSnap.data());
+        let msg = docSnap.data();
+        msg.key = docSnap.id;
+        newMessages.push(msg);
+      });
+      setMessages(newMessages);
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -48,17 +58,25 @@ export default function App() {
         <Button
           title="Send"
           onPress={()=>{
-            setMessages(oldMessages=>{
-              let newMessages = Array.from(oldMessages);
-              let ts = Date.now();
-              newMessages.push({
+            let newMsg = {
                 author: authorText,
                 text: inputText,
-                timestamp: ts,
-                key: '' + ts
-              });
-              return newMessages;
-            });
+                timestamp: new Date(),
+            };
+            addDoc(collection(db, "messageBoard"), newMsg);
+
+
+            // setMessages(oldMessages=>{
+            //   let newMessages = Array.from(oldMessages);
+            //   let ts = Date.now();
+            //   newMessages.push({
+            //     author: authorText,
+            //     text: inputText,
+            //     timestamp: ts,
+            //     key: '' + ts
+            //   });
+            //   return newMessages;
+            // });
             setInputText('');
           }}
         />
