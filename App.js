@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { initializeApp, getApps } from 'firebase/app';
 import { 
-  initializeFirestore, collection, getDocs, query,
-  doc, addDoc, getDoc, onSnapshot
+  initializeFirestore, collection, getDocs, query, orderBy, limit,
+  where, doc, addDoc, getDoc, onSnapshot
 } from "firebase/firestore";
 import { firebaseConfig } from './Secrets';
 
@@ -22,14 +22,18 @@ export default function App() {
   const [messages, setMessages] = useState([]);
 
   useEffect(()=>{ 
-    onSnapshot(collection(db, 'messageBoard'), (qSnap) => {
+    const q = query(collection(db, 'messageBoard'), 
+                    limit(3),
+                    orderBy('timestamp', 'desc'));
+    onSnapshot(q, (qSnap) => {
       let newMessages = [];
       qSnap.docs.forEach((docSnap)=>{
-        console.log(docSnap.data());
         let msg = docSnap.data();
         msg.key = docSnap.id;
+        msg.timestamp = msg.timestamp.toDate();
         newMessages.push(msg);
       });
+      console.log(newMessages);
       setMessages(newMessages);
     });
   }, []);
@@ -62,19 +66,6 @@ export default function App() {
                 timestamp: new Date(),
             };
             addDoc(collection(db, "messageBoard"), newMsg);
-
-
-            // setMessages(oldMessages=>{
-            //   let newMessages = Array.from(oldMessages);
-            //   let ts = Date.now();
-            //   newMessages.push({
-            //     author: authorText,
-            //     text: inputText,
-            //     timestamp: ts,
-            //     key: '' + ts
-            //   });
-            //   return newMessages;
-            // });
             setInputText('');
           }}
         />
@@ -89,7 +80,18 @@ export default function App() {
                 styles.messageContainer
               ]}>
                 <Text style={styles.messageText}>
-                  {item.author}: {item.text}</Text>
+                  {item.author}: {item.text} 
+                  <Text style={{fontSize: 9}}> ( 
+                  {item.timestamp
+                    .toLocaleDateString('en-us', { 
+                      month:"numeric", 
+                      day:"numeric", 
+                      hour:"numeric", 
+                      minute:"numeric",
+                      seconds: "numeric"
+                    })} 
+                  )</Text>
+                </Text>
               </View>
             );
           }}
