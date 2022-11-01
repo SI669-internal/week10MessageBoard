@@ -22,9 +22,20 @@ export default function App() {
   const [authorText, setAuthorText] = useState('');
   const [messages, setMessages] = useState([]);
 
-  useEffect(()=>{
+  const loadMessages = async () => {
+    const newMessages = [];
+    const mbSnapshot = await getDocs(collection(db, 'messageBoard'));
+    mbSnapshot.forEach(mSnap => {
+      let newMessage = mSnap.data();
+      newMessage.key = mSnap.id;
+      newMessages.push(newMessage);
+    });
+    setMessages(newMessages);
+  }
 
-  });
+  useEffect(()=>{
+    loadMessages();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -47,13 +58,14 @@ export default function App() {
       <View>
         <Button
           title="Send"
-          onPress={()=>{
+          onPress={async ()=>{
             let newMessage = {
               author: authorText,
               text: inputText,
               timestamp: Date.now(),
-              key: Date.now()
             }
+            let newMsgRef = await addDoc(collection(db, 'messageBoard'), newMessage);
+            newMessage.key = newMsgRef.id;
             let newMessages = messages.concat(newMessage);
             setMessages(newMessages);
             setInputText('');
