@@ -6,7 +6,7 @@ import {
 import { initializeApp, getApps } from 'firebase/app';
 import { 
   getFirestore, collection, getDocs, query,
-  doc, addDoc, getDoc, onSnapshot
+  doc, addDoc, getDoc, onSnapshot, orderBy, limit
 } from "firebase/firestore";
 import { firebaseConfig } from './Secrets';
 
@@ -23,7 +23,12 @@ export default function App() {
   const [messages, setMessages] = useState([]);
 
   const subscribeToMessageBoard = () => {
-    onSnapshot(collection(db, 'messageBoard'), mbSnapshot => {
+    const q = query(
+      collection(db, 'messageBoard'),
+      orderBy('timestamp', 'desc'),
+      limit(3)
+    );
+    onSnapshot(q, mbSnapshot => {
       const newMessages = [];
       mbSnapshot.forEach(mSnap => {
         let newMessage = mSnap.data();
@@ -63,12 +68,9 @@ export default function App() {
             let newMessage = {
               author: authorText,
               text: inputText,
-              timestamp: Date.now(),
+              timestamp: new Date(),
             }
-            let newMsgRef = await addDoc(collection(db, 'messageBoard'), newMessage);
-            // newMessage.key = newMsgRef.id;
-            // let newMessages = messages.concat(newMessage);
-            // setMessages(newMessages);
+            await addDoc(collection(db, 'messageBoard'), newMessage);
             setInputText('');
           }}
         />
@@ -82,7 +84,17 @@ export default function App() {
                 styles.messageContainer
               ]}>
                 <Text style={styles.messageText}>
-                  {item.author}: {item.text}</Text>
+                  {item.author}: {item.text}
+                  <Text style={{fontSize: 9}}>                    
+                    {item.timestamp.toDate().toLocaleString('en-us', {
+                      month: 'numeric',
+                      day: 'numeric',
+                      hour: 'numeric', 
+                      minute: 'numeric',
+                      seconds: 'numeric'
+                    })} 
+                  </Text>  
+                </Text>
               </View>
             );
           }}
