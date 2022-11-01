@@ -22,19 +22,20 @@ export default function App() {
   const [authorText, setAuthorText] = useState('');
   const [messages, setMessages] = useState([]);
 
-  const loadMessages = async () => {
-    const newMessages = [];
-    const mbSnapshot = await getDocs(collection(db, 'messageBoard'));
-    mbSnapshot.forEach(mSnap => {
-      let newMessage = mSnap.data();
-      newMessage.key = mSnap.id;
-      newMessages.push(newMessage);
-    });
-    setMessages(newMessages);
-  }
+  const subscribeToMessageBoard = () => {
+    onSnapshot(collection(db, 'messageBoard'), mbSnapshot => {
+      const newMessages = [];
+      mbSnapshot.forEach(mSnap => {
+        let newMessage = mSnap.data();
+        newMessage.key = mSnap.id;
+        newMessages.push(newMessage);
+      });
+      setMessages(newMessages);
+    }
+  )};
 
   useEffect(()=>{
-    loadMessages();
+    subscribeToMessageBoard();
   }, []);
 
   return (
