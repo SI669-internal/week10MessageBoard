@@ -66,9 +66,9 @@ export default function App() {
               timestamp: Date.now(),
             }
             let newMsgRef = await addDoc(collection(db, 'messageBoard'), newMessage);
-            newMessage.key = newMsgRef.id;
-            let newMessages = messages.concat(newMessage);
-            setMessages(newMessages);
+            // newMessage.key = newMsgRef.id;
+            // let newMessages = messages.concat(newMessage);
+            // setMessages(newMessages);
             setInputText('');
           }}
         />
