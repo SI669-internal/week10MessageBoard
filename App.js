@@ -63,7 +63,7 @@ export default function App() {
             let newMessage = {
               author: authorText,
               text: inputText,
-              timestamp: Date.now(),
+              timestamp: new Date(),
             }
             let newMsgRef = await addDoc(collection(db, 'messageBoard'), newMessage);
             // newMessage.key = newMsgRef.id;
